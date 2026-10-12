@@ -30,9 +30,15 @@ func main() {
 	}
 
 	courseRepository := repository.NewCourseRepositoryGORM(gormDB)
+	studentRepository := repository.NewStudentRepositoryGORM(gormDB)
+
 	courseService := service.NewCourseService(courseRepository)
+	studentService := service.NewStudentService(studentRepository)
+
 	courseHandler := handler.NewCourseHandler(courseService)
-	router := router.SetupRouter(courseHandler)
+	studentHandler := handler.NewStudentHandler(studentService)
+
+	router := router.SetupRouter(courseHandler, studentHandler)
 
 	router.Run(":8080")
 }

@@ -1,8 +1,26 @@
 package model
 
-type student struct {
-	Id 				uint 		`json:"id" binding:"required"`
-	Name 			string 		`json:"name" binding:"required"`
-	Email 			string 		`json:"email" binding:"required, email"`
-	EnrolledCourse 	[]Course 	`json:"enrolledCourse" binding:"required"`
+type Student struct {
+	Id 					uint 		`json:"id"`
+	Name 				string 		`json:"name"`
+	Email 				string 		`json:"email" binding:"email"`
+	EnrolledCourses 	[]Course 	`json:"enrolledCourses"`
+}
+
+type StudentFilter struct {
+	Page int `form:"page"`
+	Offset int `form:"offset"`
+	Search string `form:"search"`
+}
+
+type CreateStudentRequest struct {
+	Name string `json:"name" binding:"required"`
+	Email string `json:"email" binding:"required, email"`
+}
+
+type UpdateStudentRequest struct {
+	Name *string `json:"name"`
+	Email *string `json:"email" binding:"email"`
+	EnrolledCourses *[]Course `json:"enrolledCourses"`
+
 }
