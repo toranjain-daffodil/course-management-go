@@ -20,6 +20,6 @@ func RegisterStudentRoutes(
 	api *gin.RouterGroup,
 	h *StudentHandler,
 ) {
-	students := api.Group("/student")
+	students := api.Group("/students")
 	students.GET("", func(ctx *gin.Context) {})
 }
