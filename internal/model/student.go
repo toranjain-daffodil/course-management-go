@@ -8,7 +8,7 @@ type Student struct {
 }
 
 type StudentFilter struct {
-	Page int `form:"page"`
+	Limit int `form:"limit"`
 	Offset int `form:"offset"`
 	Search string `form:"search"`
 }

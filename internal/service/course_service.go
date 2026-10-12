@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+const (
+	defaultLimit = 20
+	maxLimit = 100
+)
+
 type courseService struct {
 	courseRepository interfaces.CourseRepository
 }
@@ -19,6 +24,15 @@ func NewCourseService(repo interfaces.CourseRepository) *courseService {
 }
 
 func (service courseService) List(c context.Context, filter model.CourseFilter) ([]model.Course, error) {
+	if filter.Limit <= 0 {
+		filter.Limit = defaultLimit
+	}
+	if filter.Limit > maxLimit {
+		filter.Limit = maxLimit
+	}
+	if filter.Offset < 0 {
+		filter.Offset = 0
+	}
 	return service.courseRepository.List(c, filter)
 }
 
