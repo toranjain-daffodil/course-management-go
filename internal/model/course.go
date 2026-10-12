@@ -3,10 +3,32 @@ package model
 import "time"
 
 type Course struct {
-	Id              int64 `json:"id" binding:"required"`
-	Title           string `json:"title" binding:"required"`
-	Description     string `json:"description"`
-	DurationInHours int `json:"durationInHours" binding:"required"`
-	StartDate       time.Time `json:"startDate" binding:"required"`
-	Instructor 		string `json:"instructor" binding:"required"`
+	Id              uint 		`gorm:"primary-key" json:"id"`
+	Title           string 		`gorm:"size:200;not null;uniqueIndex" json:"title"`
+	Description     string 		`json:"description"`
+	DurationInHours uint 		`json:"durationInHours"`
+	StartDate       time.Time 	`json:"startDate"`
+	Instructor 		string 		`json:"instructor"`
+}
+
+type CourseFilter struct {
+	Limit 	int 	`form:"limit"`
+	Offset 	int 	`form:"offset"`
+	Search 	string 	`form:"search"`
+}
+
+type CreateCourseRequest struct {
+	Title 			string 		`json:"title" binding:"required"`
+	Description 	string 		`json:"description"`
+	DurationInHours uint 		`json:"durationInHours" binding:"required"`
+	StartDate 		time.Time 	`json:"startDate" binding:"date"`
+	Instructor 		string 		`json:"instructor" binding:"required"`
+}
+
+type UpdateCourseRequest struct {
+	Title 			*string 		`json:"title"`
+	Description 	*string 		`json:"description"`
+	DurationInHours *uint 		`json:"durationInHours"`
+	StartDate 		*time.Time 	`json:"startDate" binding:"date"`
+	Instructor 		*string 		`json:"instructor"`
 }

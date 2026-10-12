@@ -1,15 +1,107 @@
 package service
 
 import (
-	"assignment/internal/repository"
+	"assignment/internal/model"
+	"assignment/internal/repository/interfaces"
+	"context"
+	"fmt"
+	"strings"
 )
 
-type CourseService struct {
-	courseRepository repository.CourseRepository
+type courseService struct {
+	courseRepository interfaces.CourseRepository
 }
 
-func NewCourseService(repo *repository.CourseRepository) *CourseService {
-	return &CourseService{
-		courseRepository: *repo,
+func NewCourseService(repo interfaces.CourseRepository) *courseService {
+	return &courseService{
+		courseRepository: repo,
 	}
+}
+
+func (service courseService) List(c context.Context, filter model.CourseFilter) ([]model.Course, error) {
+	return service.courseRepository.List(c, filter)
+}
+
+func (service courseService) Get(c context.Context, id uint) (*model.Course, error) {
+	return service.courseRepository.GetByID(c, id)
+}
+
+func (service courseService) Create(c context.Context, input model.CreateCourseRequest) (*model.Course, error) {
+	title := strings.TrimSpace(input.Title)
+	if err := validateTitle(title); err != nil {
+		return nil, err
+	}
+	course := &model.Course {
+		Title: title,
+		Description: strings.TrimSpace(input.Description),
+		Instructor: strings.TrimSpace(input.Instructor),
+		DurationInHours: input.DurationInHours,
+		StartDate: input.StartDate,
+	}
+	if err := service.courseRepository.Create(c, course); err != nil {
+		return nil, err
+	}
+	return course, nil
+}
+
+func (service courseService) Update(c context.Context, id uint, input model.UpdateCourseRequest) (*model.Course, error) {
+	course, err := service.courseRepository.GetByID(c, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if input.Title != nil {
+		title := strings.TrimSpace(*input.Title)
+		if err := validateTitle(title); err != nil {
+			return nil, err
+		}
+		course.Title = title
+	}
+
+	if input.Description != nil {
+		course.Description = strings.TrimSpace(*input.Description)
+	}
+
+	if input.Instructor != nil {
+		course.Instructor = strings.TrimSpace(*input.Instructor)
+	}
+
+	if input.DurationInHours != nil {
+		if err := validateDuration(*input.DurationInHours); err != nil {
+			return nil, err
+		}
+		course.DurationInHours = *input.DurationInHours
+	}
+
+	if input.StartDate != nil {
+		course.StartDate = *input.StartDate
+	}
+
+	if err := service.courseRepository.Update(c, course); err != nil {
+		return nil, err
+	}
+	return course, nil
+}
+
+func (service courseService) Delete(c context.Context, id uint) error {
+	return service.courseRepository.Delete(c, id)
+}
+
+func validateTitle(title string) error {
+	if title == "" {
+		return fmt.Errorf("%w: title is required", model.ErrValidation)
+	}
+	
+	if len(title) > 200 {
+		return fmt.Errorf("%w: title must be at most 200 characters", model.ErrValidation)
+	}
+
+	return nil
+}
+
+func validateDuration(duration uint) error {
+	if duration <= 0 {
+		return fmt.Errorf("%w: duration must be greater than 0", model.ErrValidation)
+	}
+	return nil
 }
