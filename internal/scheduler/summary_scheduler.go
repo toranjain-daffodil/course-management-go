@@ -17,7 +17,7 @@ func NewSummaryScheduler(service interfaces.CourseService, logger *log.Logger) *
 }
 
 func (s *SummaryScheduler) Start(ctx context.Context) {
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(2 * time.Minute)
 
 	go func() {
 		defer ticker.Stop()
