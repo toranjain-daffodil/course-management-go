@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"assignment/internal/mapper"
 	"assignment/internal/model"
 	"assignment/internal/service/interfaces"
 	"errors"
@@ -46,7 +47,12 @@ func (h *CourseHandler) ListCourses(c *gin.Context) {
 		h.handleError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, courses)
+	response := make([]model.CourseResponse, 0, len(courses))
+
+	for _, course := range courses {
+		response = append(response, mapper.ToCourseResponse(course))
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *CourseHandler) GetCourse(c *gin.Context) {
@@ -60,7 +66,9 @@ func (h *CourseHandler) GetCourse(c *gin.Context) {
 		h.handleError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, course)
+
+	response := mapper.ToCourseResponse(*course)
+	c.JSON(http.StatusOK, response)
 
 }
 
