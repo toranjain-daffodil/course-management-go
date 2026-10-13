@@ -4,6 +4,7 @@ import (
 	"assignment/internal/model"
 	"assignment/internal/repository/interfaces"
 	"context"
+	"strings"
 )
 
 type studentService struct {
@@ -17,21 +18,61 @@ func NewStudentService(repo interfaces.StudentRepository) *studentService {
 }
 
 func (service *studentService) List(c context.Context, filter model.StudentFilter) ([]model.Student, error) {
-	return nil, nil
+	if filter.Limit <= 0 {
+		filter.Limit = defaultLimit
+	}
+	if filter.Limit > maxLimit {
+		filter.Limit = maxLimit
+	}
+	if filter.Offset < 0 {
+		filter.Offset = 0
+	}
+	return service.studentRepository.List(c, filter)
 }
 
 func (service *studentService) Get(c context.Context, id uint) (*model.Student, error) {
-	return nil, nil
+	return service.studentRepository.GetByID(c, id)
 }
 
 func (service *studentService) Create(c context.Context, input model.CreateStudentRequest) (*model.Student, error) {
-	return nil, nil
+	student := &model.Student{
+		Name: strings.TrimSpace(input.Name),
+		Email: strings.TrimSpace(input.Email),
+	}
+
+	if err := service.studentRepository.Create(c, student); err != nil {
+		return nil, err
+	}
+	return student, nil
 }
 
 func (service *studentService) Update(c context.Context, id uint, input model.UpdateStudentRequest) (*model.Student, error) {
-	return nil, nil
+	student, err := service.studentRepository.GetByID(c, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if input.Name != nil {
+		name := strings.TrimSpace(*input.Name)
+		student.Name = name
+	}
+
+	if input.Email != nil {
+		email := strings.TrimSpace(*input.Email)
+		student.Email = email
+	}
+
+	if input.EnrolledCourses != nil {
+		student.EnrolledCourses = *input.EnrolledCourses
+	}
+
+	if err := service.studentRepository.Update(c, student); err != nil {
+		return nil, err
+	}
+	return student, nil
+	
 }
 
 func (service *studentService) Delete(c context.Context, id uint) error {
-	return nil
+	return service.studentRepository.Delete(c, id)
 }
