@@ -14,4 +14,5 @@ type CourseService interface {
 
 	Enroll(c context.Context, courseID uint, studentID uint) error
 	TopEnrolled(c context.Context) ([]model.Course, error)
+	Summary(c context.Context) (model.CourseSummary, error)
 }

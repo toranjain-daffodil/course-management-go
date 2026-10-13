@@ -167,3 +167,27 @@ func (repo courseRepositoryGORM) TopEnrolled(c context.Context, limit int) ([]mo
 	}
 	return courses, nil
 }
+
+func (repo courseRepositoryGORM) Summary(c context.Context) (model.CourseSummary, error) {
+	var summary model.CourseSummary
+
+	if err := repo.db.WithContext(c).
+				Model(&model.Course{}).
+				Count(&summary.TotalCourses).Error; err != nil {
+					return summary, err
+				}
+
+	if err := repo.db.WithContext(c).
+				Model(&model.Student{}).
+				Count(&summary.TotalStudents).Error; err != nil {
+					return summary, err
+				}
+
+	if err := repo.db.WithContext(c).
+				Model(&model.Course{}).
+				Select("COALESCE(AVG(duration_in_hours), 0)").
+				Scan(&summary.AverageDurationHours).Error; err != nil {
+					return summary, err
+				}
+	return summary, nil
+}

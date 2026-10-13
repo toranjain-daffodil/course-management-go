@@ -14,4 +14,5 @@ type CourseRepository interface {
 
 	Enroll(c context.Context, courseID uint, studentID uint) error
 	TopEnrolled(c context.Context, limit int) ([]model.Course, error)
+	Summary(c context.Context) (model.CourseSummary, error)
 }

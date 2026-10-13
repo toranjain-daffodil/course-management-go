@@ -109,6 +109,10 @@ func (service courseService) TopEnrolled(c context.Context) ([]model.Course, err
 	return service.courseRepository.TopEnrolled(c, 5)
 }
 
+func (service courseService) Summary(c context.Context) (model.CourseSummary, error) {
+	return service.courseRepository.Summary(c)
+}
+
 func validateTitle(title string) error {
 	if title == "" {
 		return fmt.Errorf("%w: title is required", model.ErrValidation)
