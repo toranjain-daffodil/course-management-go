@@ -36,7 +36,7 @@ func (service *studentService) Get(c context.Context, id uint) (*model.Student, 
 
 func (service *studentService) Create(c context.Context, input model.CreateStudentRequest) (*model.Student, error) {
 	student := &model.Student{
-		Name: strings.TrimSpace(input.Name),
+		Name:  strings.TrimSpace(input.Name),
 		Email: strings.TrimSpace(input.Email),
 	}
 
@@ -62,17 +62,17 @@ func (service *studentService) Update(c context.Context, id uint, input model.Up
 		student.Email = email
 	}
 
-	if input.EnrolledCourses != nil {
-		student.EnrolledCourses = *input.EnrolledCourses
-	}
-
 	if err := service.studentRepository.Update(c, student); err != nil {
 		return nil, err
 	}
 	return student, nil
-	
+
 }
 
 func (service *studentService) Delete(c context.Context, id uint) error {
 	return service.studentRepository.Delete(c, id)
+}
+
+func (service *studentService) ListUnenrolled(c context.Context) ([]model.Student, error) {
+	return service.studentRepository.ListUnenrolled(c)
 }

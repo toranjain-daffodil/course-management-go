@@ -59,13 +59,12 @@ func (repo studentRepositoryGORM) Create(c context.Context, student *model.Stude
 
 func (repo studentRepositoryGORM) Update(c context.Context, student *model.Student) error {
 	res := repo.db.WithContext(c).
-			Model(student).
-			Select(
-				"Name",
-				"Email",
-				"EnrolledCourses",
-			).
-			Updates(student)
+		Model(student).
+		Select(
+			"Name",
+			"Email",
+		).
+		Updates(student)
 	if errors.Is(res.Error, gorm.ErrDuplicatedKey) {
 		return fmt.Errorf("%w: student already exists", model.ErrConflict)
 	}
@@ -87,4 +86,16 @@ func (repo studentRepositoryGORM) Delete(c context.Context, id uint) error {
 		return model.ErrNotFound
 	}
 	return nil
+}
+
+func (repo studentRepositoryGORM) ListUnenrolled(c context.Context) ([]model.Student, error) {
+	var students []model.Student
+	res := repo.db.WithContext(c).
+		Where("NOT EXISTS (SELECT 1 FROM course_students WHERE course_students.student_id = students.id)").
+		Order("students.id ASC").
+		Find(&students)
+	if res.Error != nil {
+		return nil, fmt.Errorf("list unenrolled students: %w", res.Error)
+	}
+	return students, nil
 }

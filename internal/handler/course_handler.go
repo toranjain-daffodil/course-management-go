@@ -27,6 +27,7 @@ func RegisterCourseRoutes(
 ) {
 	courses := api.Group("/courses")
 	courses.GET("", h.ListCourses)
+	courses.GET("/top-enrolled", h.TopEnrolledCourses)
 	courses.GET("/:id", h.GetCourse)
 	courses.POST("", h.CreateCourse)
 	courses.PUT("/:id", h.UpdateCourse)
@@ -126,14 +127,14 @@ func (h *CourseHandler) EnrollCourse(c *gin.Context) {
 	if !ok {
 		return
 	}
-	
+
 	var input model.EnrollCourseRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error":err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := h.courseService.Enroll(c, courseID ,input.StudentID); err != nil {
+	if err := h.courseService.Enroll(c, courseID, input.StudentID); err != nil {
 		h.handleError(c, err)
 		return
 	}
@@ -161,4 +162,18 @@ func (h *CourseHandler) handleError(c *gin.Context, err error) {
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 	}
+}
+
+func (h *CourseHandler) TopEnrolledCourses(c *gin.Context) {
+	courses, err := h.courseService.TopEnrolled(c.Request.Context())
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	response := make([]model.CourseResponse, 0, len(courses))
+	for _, course := range courses {
+		response = append(response, mapper.ToCourseResponse(course))
+	}
+	c.JSON(http.StatusOK, response)
 }

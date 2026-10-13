@@ -13,4 +13,5 @@ type CourseRepository interface {
 	Delete(c context.Context, id uint) error
 
 	Enroll(c context.Context, courseID uint, studentID uint) error
+	TopEnrolled(c context.Context, limit int) ([]model.Course, error)
 }

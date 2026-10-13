@@ -10,7 +10,7 @@ import (
 
 const (
 	defaultLimit = 20
-	maxLimit = 100
+	maxLimit     = 100
 )
 
 type courseService struct {
@@ -45,12 +45,12 @@ func (service courseService) Create(c context.Context, input model.CreateCourseR
 	if err := validateTitle(title); err != nil {
 		return nil, err
 	}
-	course := &model.Course {
-		Title: title,
-		Description: strings.TrimSpace(input.Description),
-		Instructor: strings.TrimSpace(input.Instructor),
+	course := &model.Course{
+		Title:           title,
+		Description:     strings.TrimSpace(input.Description),
+		Instructor:      strings.TrimSpace(input.Instructor),
 		DurationInHours: input.DurationInHours,
-		StartDate: input.StartDate,
+		StartDate:       input.StartDate,
 	}
 	if err := service.courseRepository.Create(c, course); err != nil {
 		return nil, err
@@ -105,11 +105,15 @@ func (service courseService) Enroll(c context.Context, courseID uint, studentID 
 	return service.courseRepository.Enroll(c, courseID, studentID)
 }
 
+func (service courseService) TopEnrolled(c context.Context) ([]model.Course, error) {
+	return service.courseRepository.TopEnrolled(c, 5)
+}
+
 func validateTitle(title string) error {
 	if title == "" {
 		return fmt.Errorf("%w: title is required", model.ErrValidation)
 	}
-	
+
 	if len(title) > 200 {
 		return fmt.Errorf("%w: title must be at most 200 characters", model.ErrValidation)
 	}

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"assignment/internal/mapper"
 	"assignment/internal/model"
 	"assignment/internal/service/interfaces"
 	"errors"
@@ -25,6 +26,7 @@ func RegisterStudentRoutes(
 ) {
 	students := api.Group("/students")
 	students.GET("", h.ListStudent)
+	students.GET("/unenrolled", h.ListUnenrolledStudents)
 	students.GET("/:id", h.GetStudent)
 	students.POST("", h.CreateStudent)
 	students.PUT("/:id", h.UpdateStudent)
@@ -44,7 +46,12 @@ func (h *StudentHandler) ListStudent(c *gin.Context) {
 		h.handleError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, students)
+
+	response := make([]model.StudentResponse, 0, len(students))
+	for _, student := range students {
+		response = append(response, mapper.ToStudentResponse(student))
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *StudentHandler) GetStudent(c *gin.Context) {
@@ -53,12 +60,12 @@ func (h *StudentHandler) GetStudent(c *gin.Context) {
 		return
 	}
 
-	course, err := h.studentService.Get(c, id)
+	student, err := h.studentService.Get(c, id)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, course)
+	c.JSON(http.StatusOK, mapper.ToStudentResponse(*student))
 }
 
 func (h *StudentHandler) CreateStudent(c *gin.Context) {
@@ -91,7 +98,7 @@ func (h *StudentHandler) UpdateStudent(c *gin.Context) {
 	}
 
 	student, err := h.studentService.Update(c, id, input)
-	
+
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -124,4 +131,17 @@ func (h *StudentHandler) handleError(c *gin.Context, err error) {
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 	}
+}
+
+func (h *StudentHandler) ListUnenrolledStudents(c *gin.Context) {
+	students, err := h.studentService.ListUnenrolled(c.Request.Context())
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	response := make([]model.StudentResponse, 0, len(students))
+	for _, student := range students {
+		response = append(response, mapper.ToStudentResponse(student))
+	}
+	c.JSON(http.StatusOK, response)
 }

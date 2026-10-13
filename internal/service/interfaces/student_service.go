@@ -11,4 +11,5 @@ type StudentService interface {
 	Create(c context.Context, input model.CreateStudentRequest) (*model.Student, error)
 	Update(c context.Context, id uint, input model.UpdateStudentRequest) (*model.Student, error)
 	Delete(c context.Context, id uint) error
+	ListUnenrolled(c context.Context) ([]model.Student, error)
 }
