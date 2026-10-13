@@ -25,7 +25,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := gormDB.AutoMigrate(&model.Course{}); err != nil {
+	if err := gormDB.AutoMigrate(&model.Course{}, &model.Student{}); err != nil {
 		log.Fatalf("migrate: %v", err)
 	}
 

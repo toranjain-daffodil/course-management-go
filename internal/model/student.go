@@ -4,7 +4,7 @@ type Student struct {
 	Id 					uint 		`json:"id"`
 	Name 				string 		`json:"name"`
 	Email 				string 		`json:"email" binding:"email"`
-	EnrolledCourses 	[]Course 	`json:"enrolledCourses"`
+	EnrolledCourses 	[]Course 	`gorm:"many2many:course_students" json:"enrolledCourses"`
 }
 
 type StudentFilter struct {
@@ -15,7 +15,7 @@ type StudentFilter struct {
 
 type CreateStudentRequest struct {
 	Name string `json:"name" binding:"required"`
-	Email string `json:"email" binding:"required, email"`
+	Email string `json:"email" binding:"required,email"`
 }
 
 type UpdateStudentRequest struct {

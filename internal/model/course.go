@@ -9,6 +9,7 @@ type Course struct {
 	DurationInHours uint 		`json:"durationInHours"`
 	StartDate       time.Time 	`json:"startDate"`
 	Instructor 		string 		`json:"instructor"`
+	Students 		[]Student	`gorm:"many2many:course_students" json:"students"`
 }
 
 type CourseFilter struct {
@@ -21,14 +22,14 @@ type CreateCourseRequest struct {
 	Title 			string 		`json:"title" binding:"required"`
 	Description 	string 		`json:"description"`
 	DurationInHours uint 		`json:"durationInHours" binding:"required"`
-	StartDate 		time.Time 	`json:"startDate" binding:"date"`
+	StartDate 		time.Time 	`json:"startDate"`
 	Instructor 		string 		`json:"instructor" binding:"required"`
 }
 
 type UpdateCourseRequest struct {
 	Title 			*string 		`json:"title"`
 	Description 	*string 		`json:"description"`
-	DurationInHours *uint 		`json:"durationInHours"`
-	StartDate 		*time.Time 	`json:"startDate" binding:"date"`
+	DurationInHours *uint 			`json:"durationInHours"`
+	StartDate 		*time.Time 		`json:"startDate"`
 	Instructor 		*string 		`json:"instructor"`
 }
