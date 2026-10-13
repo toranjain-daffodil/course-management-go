@@ -11,4 +11,6 @@ type CourseService interface {
 	Create(c context.Context, input model.CreateCourseRequest) (*model.Course, error)
 	Update(c context.Context, id uint, input model.UpdateCourseRequest) (*model.Course, error)
 	Delete(c context.Context, id uint) error
+
+	Enroll(c context.Context, courseID uint, studentID uint) error
 }

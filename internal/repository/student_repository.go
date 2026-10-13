@@ -27,7 +27,7 @@ func (repo studentRepositoryGORM) List(c context.Context, filter model.StudentFi
 	}
 
 	var students []model.Student
-	res := q.Order("id ASC").Limit(filter.Limit).Offset(filter.Offset).Find(&students)
+	res := q.Preload("EnrolledCourses").Order("id ASC").Limit(filter.Limit).Offset(filter.Offset).Find(&students)
 	if res.Error != nil {
 		return nil, fmt.Errorf("list students: %w", res.Error)
 	}
@@ -36,7 +36,7 @@ func (repo studentRepositoryGORM) List(c context.Context, filter model.StudentFi
 
 func (repo studentRepositoryGORM) GetByID(c context.Context, id uint) (*model.Student, error) {
 	var student model.Student
-	res := repo.db.WithContext(c).First(&student, id)
+	res := repo.db.WithContext(c).Preload("EnrolledCourses").First(&student, id)
 	if errors.Is(res.Error, gorm.ErrRecordNotFound) {
 		return nil, model.ErrNotFound
 	}

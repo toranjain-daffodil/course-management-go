@@ -30,6 +30,7 @@ func RegisterCourseRoutes(
 	courses.POST("", h.CreateCourse)
 	courses.PUT("/:id", h.UpdateCourse)
 	courses.DELETE("/:id", h.DeleteCourse)
+	courses.POST("/:id/enroll", h.EnrollCourse)
 }
 
 func (h *CourseHandler) ListCourses(c *gin.Context) {
@@ -110,6 +111,26 @@ func (h *CourseHandler) DeleteCourse(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusNoContent)
+}
+
+func (h *CourseHandler) EnrollCourse(c *gin.Context) {
+	courseID, ok := parseID(c)
+	if !ok {
+		return
+	}
+	
+	var input model.EnrollCourseRequest
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error":err.Error()})
+		return
+	}
+
+	if err := h.courseService.Enroll(c, courseID ,input.StudentID); err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func parseID(c *gin.Context) (uint, bool) {

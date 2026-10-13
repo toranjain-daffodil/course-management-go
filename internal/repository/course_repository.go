@@ -29,7 +29,7 @@ func (repo courseRepositoryGORM) List(c context.Context, filter model.CourseFilt
 	}
 
 	var courses []model.Course
-	err := q.Order("id ASC").Limit(filter.Limit).Offset(filter.Offset).Find(&courses).Error
+	err := q.Preload("Students").Order("id ASC").Limit(filter.Limit).Offset(filter.Offset).Find(&courses).Error
 	if err != nil {
 		return nil, fmt.Errorf("list courses: %w", err)
 	}
@@ -38,7 +38,7 @@ func (repo courseRepositoryGORM) List(c context.Context, filter model.CourseFilt
 
 func (repo courseRepositoryGORM) GetByID(c context.Context, id uint) (*model.Course, error) {
 	var course model.Course
-	err := repo.db.WithContext(c).First(&course, id).Error
+	err := repo.db.WithContext(c).Preload("Students").First(&course, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, model.ErrNotFound
 	}
@@ -92,6 +92,30 @@ func (repo courseRepositoryGORM) Delete(c context.Context, id uint) error {
 
 	if res.RowsAffected == 0 {
 		return model.ErrNotFound
+	}
+	return nil
+}
+
+func (repo courseRepositoryGORM) Enroll(c context.Context, courseID uint, studentID uint) error {
+	var course model.Course
+	var student model.Student
+
+	if err := repo.db.WithContext(c).First(&course, courseID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return model.ErrNotFound
+		}
+		return err
+	}
+
+	if err := repo.db.WithContext(c).First(&student, studentID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return model.ErrNotFound
+		}
+		return err
+	}
+
+	if err := repo.db.Model(&course).Association("Students").Append(&student); err != nil {
+		return err
 	}
 	return nil
 }

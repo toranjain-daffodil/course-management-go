@@ -101,6 +101,10 @@ func (service courseService) Delete(c context.Context, id uint) error {
 	return service.courseRepository.Delete(c, id)
 }
 
+func (service courseService) Enroll(c context.Context, courseID uint, studentID uint) error {
+	return service.courseRepository.Enroll(c, courseID, studentID)
+}
+
 func validateTitle(title string) error {
 	if title == "" {
 		return fmt.Errorf("%w: title is required", model.ErrValidation)

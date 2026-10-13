@@ -33,3 +33,7 @@ type UpdateCourseRequest struct {
 	StartDate 		*time.Time 		`json:"startDate"`
 	Instructor 		*string 		`json:"instructor"`
 }
+
+type EnrollCourseRequest struct {
+	StudentID uint `json:"studentID" binding:"required"`
+}
