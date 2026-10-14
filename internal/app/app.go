@@ -35,6 +35,7 @@ func NewApp() (*App, error) {
 	}
 
 	if err := gormDB.AutoMigrate(&model.Course{}, &model.Student{}); err != nil {
+		_ = sqlDB.Close()
 		return nil, err
 	}
 
@@ -60,11 +61,19 @@ func NewApp() (*App, error) {
 	return app, nil
 }
 
-func (app *App) Run(ctx context.Context) error {
+func (app *App) Run(ctx context.Context) (runErr error) {
 	runCtx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
 	schedulerDone := app.scheduler.Start(runCtx)
+
+	defer func() {
+		cancel()
+
+		<-schedulerDone
+
+		if err := app.sqlDB.Close(); err != nil && runErr == nil {
+			runErr = fmt.Errorf("close database pool: %w", err)
+		}
+	}() 
 	
 	serverErrors := make(chan error, 1)
 
@@ -76,17 +85,11 @@ func (app *App) Run(ctx context.Context) error {
 	case <-ctx.Done():
 		log.Println("shutdown signal received")
 
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
+		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer shutdownCancel()
 
 		if err := app.server.Shutdown(shutdownCtx); err != nil {
 			return fmt.Errorf("shutdown server: %w", err)
-		}
-
-		<-schedulerDone
-
-		if err := app.sqlDB.Close(); err != nil {
-			return fmt.Errorf("close database pool: %w", err)
 		}
 
 		return nil
@@ -95,6 +98,7 @@ func (app *App) Run(ctx context.Context) error {
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			return fmt.Errorf("server failed: %w", err)
 		}
+
+		return nil
 	}
-	return nil
 }
