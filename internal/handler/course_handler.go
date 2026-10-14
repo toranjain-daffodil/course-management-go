@@ -62,7 +62,7 @@ func (h *CourseHandler) GetCourse(c *gin.Context) {
 		return
 	}
 
-	course, err := h.courseService.Get(c, id)
+	course, err := h.courseService.Get(c.Request.Context(), id)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -100,7 +100,7 @@ func (h *CourseHandler) UpdateCourse(c *gin.Context) {
 		return
 	}
 
-	course, err := h.courseService.Update(c, id, input)
+	course, err := h.courseService.Update(c.Request.Context(), id, input)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -134,7 +134,7 @@ func (h *CourseHandler) EnrollCourse(c *gin.Context) {
 		return
 	}
 
-	if err := h.courseService.Enroll(c, courseID, input.StudentID); err != nil {
+	if err := h.courseService.Enroll(c.Request.Context(), courseID, input.StudentID); err != nil {
 		h.handleError(c, err)
 		return
 	}

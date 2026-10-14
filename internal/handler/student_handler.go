@@ -60,7 +60,7 @@ func (h *StudentHandler) GetStudent(c *gin.Context) {
 		return
 	}
 
-	student, err := h.studentService.Get(c, id)
+	student, err := h.studentService.Get(c.Request.Context(), id)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -76,7 +76,7 @@ func (h *StudentHandler) CreateStudent(c *gin.Context) {
 		return
 	}
 
-	student, err := h.studentService.Create(c, input)
+	student, err := h.studentService.Create(c.Request.Context(), input)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -97,7 +97,7 @@ func (h *StudentHandler) UpdateStudent(c *gin.Context) {
 		return
 	}
 
-	student, err := h.studentService.Update(c, id, input)
+	student, err := h.studentService.Update(c.Request.Context(), id, input)
 
 	if err != nil {
 		h.handleError(c, err)
@@ -113,7 +113,7 @@ func (h *StudentHandler) DeleteStudent(c *gin.Context) {
 		return
 	}
 
-	if err := h.studentService.Delete(c, id); err != nil {
+	if err := h.studentService.Delete(c.Request.Context(), id); err != nil {
 		h.handleError(c, err)
 		return
 	}

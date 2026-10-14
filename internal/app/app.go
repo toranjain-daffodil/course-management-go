@@ -9,6 +9,7 @@ import (
 	"assignment/internal/scheduler"
 	"assignment/internal/service"
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
@@ -19,6 +20,7 @@ import (
 type App struct {
 	server    *http.Server
 	scheduler *scheduler.SummaryScheduler
+	sqlDB 	  *sql.DB
 }
 
 func NewApp() (*App, error) {
@@ -27,7 +29,7 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	gormDB, _, err := config.ConnectDatabase(cfg.PostgresDSN)
+	gormDB, sqlDB, err := config.ConnectDatabase(cfg.PostgresDSN)
 	if err != nil {
 		return nil, err
 	}
@@ -54,12 +56,16 @@ func NewApp() (*App, error) {
 		Handler: router,
 	}
 
-	app := &App{server: server, scheduler: summaryScheduler}
+	app := &App{server: server, scheduler: summaryScheduler, sqlDB: sqlDB}
 	return app, nil
 }
 
 func (app *App) Run(ctx context.Context) error {
-	app.scheduler.Start(ctx)
+	runCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	schedulerDone := app.scheduler.Start(runCtx)
+	
 	serverErrors := make(chan error, 1)
 
 	go func() {
@@ -74,11 +80,20 @@ func (app *App) Run(ctx context.Context) error {
 		defer cancel()
 
 		if err := app.server.Shutdown(shutdownCtx); err != nil {
-			return fmt.Errorf("server shutdown failed: %v", err)
+			return fmt.Errorf("shutdown server: %w", err)
 		}
+
+		<-schedulerDone
+
+		if err := app.sqlDB.Close(); err != nil {
+			return fmt.Errorf("close database pool: %w", err)
+		}
+
+		return nil
+
 	case err := <-serverErrors:
-		if err != nil && errors.Is(err, http.ErrServerClosed) {
-			return fmt.Errorf("server failed: %v", err)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return fmt.Errorf("server failed: %w", err)
 		}
 	}
 	return nil

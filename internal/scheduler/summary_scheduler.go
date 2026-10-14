@@ -16,11 +16,13 @@ func NewSummaryScheduler(service interfaces.CourseService, logger *log.Logger) *
 	return &SummaryScheduler{service: service, logger: logger}
 }
 
-func (s *SummaryScheduler) Start(ctx context.Context) {
+func (s *SummaryScheduler) Start(ctx context.Context) <-chan struct{} {
+	done := make(chan struct{})
 	ticker := time.NewTicker(2 * time.Minute)
 
 	go func() {
 		defer ticker.Stop()
+		defer close(done)
 
 		for {
 			select {
@@ -41,4 +43,6 @@ func (s *SummaryScheduler) Start(ctx context.Context) {
 			}
 		}
 	}()
+
+	return done
 }
