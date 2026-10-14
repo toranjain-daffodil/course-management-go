@@ -9,20 +9,22 @@ import (
 
 type studentService struct {
 	studentRepository interfaces.StudentRepository
+	pagination model.PaginationConfig
 }
 
-func NewStudentService(repo interfaces.StudentRepository) *studentService {
+func NewStudentService(repo interfaces.StudentRepository, pagination model.PaginationConfig) *studentService {
 	return &studentService{
 		studentRepository: repo,
+		pagination: pagination,
 	}
 }
 
 func (service *studentService) List(c context.Context, filter model.StudentFilter) ([]model.Student, error) {
 	if filter.Limit <= 0 {
-		filter.Limit = defaultLimit
+		filter.Limit = service.pagination.DefaultLimit
 	}
-	if filter.Limit > maxLimit {
-		filter.Limit = maxLimit
+	if filter.Limit > service.pagination.MaxLimit {
+		filter.Limit = service.pagination.MaxLimit
 	}
 	if filter.Offset < 0 {
 		filter.Offset = 0

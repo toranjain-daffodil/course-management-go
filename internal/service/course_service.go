@@ -8,27 +8,24 @@ import (
 	"strings"
 )
 
-const (
-	defaultLimit = 20
-	maxLimit     = 100
-)
-
 type courseService struct {
 	courseRepository interfaces.CourseRepository
+	pagination model.PaginationConfig
 }
 
-func NewCourseService(repo interfaces.CourseRepository) *courseService {
+func NewCourseService(repo interfaces.CourseRepository, pagination model.PaginationConfig) *courseService {
 	return &courseService{
 		courseRepository: repo,
+		pagination: pagination,
 	}
 }
 
 func (service courseService) List(c context.Context, filter model.CourseFilter) ([]model.Course, error) {
 	if filter.Limit <= 0 {
-		filter.Limit = defaultLimit
+		filter.Limit = service.pagination.DefaultLimit
 	}
-	if filter.Limit > maxLimit {
-		filter.Limit = maxLimit
+	if filter.Limit > service.pagination.MaxLimit {
+		filter.Limit = service.pagination.MaxLimit
 	}
 	if filter.Offset < 0 {
 		filter.Offset = 0

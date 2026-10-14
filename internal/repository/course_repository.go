@@ -10,20 +10,18 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-const (
-	maxCoursesPerStudent = 3
-	maxStudentsPerCourse = 10
-)
-
 type courseRepositoryGORM struct {
 	db *gorm.DB
+	enroll model.EnrollmentConfig
 }
 
 func NewCourseRepositoryGORM(
 	gormDB *gorm.DB,
+	enroll model.EnrollmentConfig,
 ) *courseRepositoryGORM {
 	return &courseRepositoryGORM{
 		db: gormDB,
+		enroll: enroll,
 	}
 }
 
@@ -132,16 +130,16 @@ func (repo courseRepositoryGORM) Enroll(c context.Context, courseID uint, studen
 		if err := tx.Table("course_students").Where("course_id = ?", courseID).Count(&courseEnrollmentCount).Error; err != nil {
 			return fmt.Errorf("count course enrollments: %w", err)
 		}
-		if courseEnrollmentCount >= maxStudentsPerCourse {
-			return fmt.Errorf("%w: a course cannot have more than %d students", model.ErrValidation, maxStudentsPerCourse)
+		if courseEnrollmentCount >= int64(repo.enroll.MaxStudentsPerCourse) {
+			return fmt.Errorf("%w: a course cannot have more than %d students", model.ErrValidation, repo.enroll.MaxStudentsPerCourse)
 		}
 
 		var studentEnrollmentCount int64
 		if err := tx.Table("course_students").Where("student_id = ?", studentID).Count(&studentEnrollmentCount).Error; err != nil {
 			return fmt.Errorf("count student enrollments: %w", err)
 		}
-		if studentEnrollmentCount >= maxCoursesPerStudent {
-			return fmt.Errorf("%w: a student cannot enroll in more than %d courses", model.ErrValidation, maxCoursesPerStudent)
+		if studentEnrollmentCount >= int64(repo.enroll.MaxCoursesPerStudent) {
+			return fmt.Errorf("%w: a student cannot enroll in more than %d courses", model.ErrValidation, repo.enroll.MaxCoursesPerStudent)
 		}
 
 		if err := tx.Model(&course).Association("Students").Append(&student); err != nil {
