@@ -34,7 +34,7 @@ func (r studentRepositorySQL) List(c context.Context, filter model.StudentFilter
 		return nil, fmt.Errorf("list students: %w", err)
 	}
 	defer rows.Close()
-	
+
 	students, err := scanStudents(rows)
 	if err != nil {
 		return nil, err

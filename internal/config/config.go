@@ -13,7 +13,7 @@ import (
 
 func New() (*model.Config, error) {
 	if err := godotenv.Load(); err != nil {
-		return nil, err 
+		return nil, err
 	}
 
 	dsn := os.Getenv("POSTGRES_DSN")
@@ -45,13 +45,13 @@ func New() (*model.Config, error) {
 	}
 	pagination := model.PaginationConfig{
 		DefaultLimit: int(defaultLimit),
-		MaxLimit: int(maxLimit),
+		MaxLimit:     int(maxLimit),
 	}
 
 	return &model.Config{
 		PostgresDSN: dsn,
-		Enrollment: enroll,
-		Pagination: pagination,
+		Enrollment:  enroll,
+		Pagination:  pagination,
 	}, nil
 }
 

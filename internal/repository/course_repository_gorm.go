@@ -11,7 +11,7 @@ import (
 )
 
 type courseRepositoryGORM struct {
-	db *gorm.DB
+	db     *gorm.DB
 	enroll model.EnrollmentConfig
 }
 
@@ -20,7 +20,7 @@ func NewCourseRepositoryGORM(
 	enroll model.EnrollmentConfig,
 ) *courseRepositoryGORM {
 	return &courseRepositoryGORM{
-		db: gormDB,
+		db:     gormDB,
 		enroll: enroll,
 	}
 }
@@ -170,22 +170,22 @@ func (repo courseRepositoryGORM) Summary(c context.Context) (model.CourseSummary
 	var summary model.CourseSummary
 
 	if err := repo.db.WithContext(c).
-				Model(&model.Course{}).
-				Count(&summary.TotalCourses).Error; err != nil {
-					return summary, err
-				}
+		Model(&model.Course{}).
+		Count(&summary.TotalCourses).Error; err != nil {
+		return summary, err
+	}
 
 	if err := repo.db.WithContext(c).
-				Model(&model.Student{}).
-				Count(&summary.TotalStudents).Error; err != nil {
-					return summary, err
-				}
+		Model(&model.Student{}).
+		Count(&summary.TotalStudents).Error; err != nil {
+		return summary, err
+	}
 
 	if err := repo.db.WithContext(c).
-				Model(&model.Course{}).
-				Select("COALESCE(AVG(duration_in_hours), 0)").
-				Scan(&summary.AverageDurationHours).Error; err != nil {
-					return summary, err
-				}
+		Model(&model.Course{}).
+		Select("COALESCE(AVG(duration_in_hours), 0)").
+		Scan(&summary.AverageDurationHours).Error; err != nil {
+		return summary, err
+	}
 	return summary, nil
 }

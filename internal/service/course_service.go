@@ -10,13 +10,13 @@ import (
 
 type courseService struct {
 	courseRepository interfaces.CourseRepository
-	pagination model.PaginationConfig
+	pagination       model.PaginationConfig
 }
 
 func NewCourseService(repo interfaces.CourseRepository, pagination model.PaginationConfig) *courseService {
 	return &courseService{
 		courseRepository: repo,
-		pagination: pagination,
+		pagination:       pagination,
 	}
 }
 

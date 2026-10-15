@@ -20,7 +20,7 @@ import (
 type App struct {
 	server    *http.Server
 	scheduler *scheduler.SummaryScheduler
-	sqlDB 	  *sql.DB
+	sqlDB     *sql.DB
 }
 
 func NewApp() (*App, error) {
@@ -73,8 +73,8 @@ func (app *App) Run(ctx context.Context) (runErr error) {
 		if err := app.sqlDB.Close(); err != nil && runErr == nil {
 			runErr = fmt.Errorf("close database pool: %w", err)
 		}
-	}() 
-	
+	}()
+
 	serverErrors := make(chan error, 1)
 
 	go func() {

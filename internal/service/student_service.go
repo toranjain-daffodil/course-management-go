@@ -9,13 +9,13 @@ import (
 
 type studentService struct {
 	studentRepository interfaces.StudentRepository
-	pagination model.PaginationConfig
+	pagination        model.PaginationConfig
 }
 
 func NewStudentService(repo interfaces.StudentRepository, pagination model.PaginationConfig) *studentService {
 	return &studentService{
 		studentRepository: repo,
-		pagination: pagination,
+		pagination:        pagination,
 	}
 }
 

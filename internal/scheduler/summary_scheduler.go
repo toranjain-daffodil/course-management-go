@@ -9,7 +9,7 @@ import (
 
 type SummaryScheduler struct {
 	service interfaces.CourseService
-	logger *log.Logger
+	logger  *log.Logger
 }
 
 func NewSummaryScheduler(service interfaces.CourseService, logger *log.Logger) *SummaryScheduler {
@@ -26,7 +26,7 @@ func (s *SummaryScheduler) Start(ctx context.Context) <-chan struct{} {
 
 		for {
 			select {
-			case <- ticker.C:
+			case <-ticker.C:
 				summary, err := s.service.Summary(ctx)
 				if err != nil {
 					s.logger.Printf("summary job failed: %v", err)

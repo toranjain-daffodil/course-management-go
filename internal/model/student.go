@@ -35,8 +35,8 @@ type StudentCourse struct {
 }
 
 type StudentResponse struct {
-	Id              uint     			`json:"id"`
-	Name            string   			`json:"name"`
-	Email           string   			`json:"email"`
-	EnrolledCourses []StudentCourse 	`json:"enrolledCourses"`
+	Id              uint            `json:"id"`
+	Name            string          `json:"name"`
+	Email           string          `json:"email"`
+	EnrolledCourses []StudentCourse `json:"enrolledCourses"`
 }

@@ -7,19 +7,19 @@ func ToStudentResponse(student model.Student) model.StudentResponse {
 
 	for _, course := range student.EnrolledCourses {
 		courses = append(courses, model.StudentCourse{
-			Id: course.Id,
-			Title: course.Title,
-			Description: course.Description,
+			Id:              course.Id,
+			Title:           course.Title,
+			Description:     course.Description,
 			DurationInHours: course.DurationInHours,
-			StartDate: course.StartDate,
-			Instructor: course.Instructor,
+			StartDate:       course.StartDate,
+			Instructor:      course.Instructor,
 		})
 	}
 
 	return model.StudentResponse{
-		Id: student.Id,
-		Name: student.Name,
-		Email: student.Email,
+		Id:              student.Id,
+		Name:            student.Name,
+		Email:           student.Email,
 		EnrolledCourses: courses,
 	}
 }

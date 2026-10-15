@@ -2,8 +2,8 @@ package model
 
 type Config struct {
 	PostgresDSN string
-	Enrollment EnrollmentConfig
-	Pagination PaginationConfig
+	Enrollment  EnrollmentConfig
+	Pagination  PaginationConfig
 }
 
 type EnrollmentConfig struct {
@@ -13,5 +13,5 @@ type EnrollmentConfig struct {
 
 type PaginationConfig struct {
 	DefaultLimit int
-	MaxLimit int
+	MaxLimit     int
 }
