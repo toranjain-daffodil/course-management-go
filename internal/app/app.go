@@ -39,8 +39,8 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	courseRepository := repository.NewCourseRepositoryGORM(gormDB, cfg.Enrollment)
-	studentRepository := repository.NewStudentRepositoryGORM(gormDB)
+	courseRepository := repository.NewCourseRepositorySQL(sqlDB, cfg.Enrollment)
+	studentRepository := repository.NewStudentRepositorySQL(sqlDB)
 
 	courseService := service.NewCourseService(courseRepository, cfg.Pagination)
 	studentService := service.NewStudentService(studentRepository, cfg.Pagination)
